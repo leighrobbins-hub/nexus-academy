@@ -1,5 +1,5 @@
 /**
- * Shared UI wiring for Gene Code Explorer lessons 2–4 (missions + quiz + HUD).
+ * Shared UI wiring for Nexus Academy life-sciences lessons 2–4 (missions + quiz + HUD).
  * Requires gene-code-game.js. Expects DOM hooks and classes documented in each lesson HTML.
  */
 (function () {
@@ -78,7 +78,7 @@
       var title = document.getElementById("victory-title");
       var badges = document.getElementById("victory-badges");
       if (isGrand) {
-        if (title) title.textContent = "Gene Code Explorer complete";
+        if (title) title.textContent = "Nexus Academy — Life sciences track complete";
         if (msg)
           msg.textContent = personalize(
             "{name}, you cleared all four lessons. Maximum career XP—legend status."

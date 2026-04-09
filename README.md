@@ -1,14 +1,14 @@
-# Gene Code Explorer + Nexus Academy
+# Nexus Academy
 
-Static learning games (life science, math, ELA) and the Nexus meta-hub.
+Middle school **life sciences, math, and ELA** as story-driven browser games—missions, XP, and one shared cadet identity across realms.
 
-**Live site:** [https://leighrobbins-hub.github.io/GeneCode-Explorer/](https://leighrobbins-hub.github.io/GeneCode-Explorer/)
+**Live site:** [https://leighrobbins-hub.github.io/nexus-academy/](https://leighrobbins-hub.github.io/nexus-academy/)
 
 **Entry points**
 
-- `index.html` — quick entry (redirects to Lesson 1); use **`hub.html`** for the full course picker
-- `nexus.html` — Nexus Academy (all three games)
-- `hub.html` — Gene Code Explorer chapters
+- `index.html` — quick entry (redirects to Lesson 1); **`hub.html`** — life sciences course hub
+- `nexus.html` — meta-hub for all three games (life sciences · math · ELA)
+- **Life sciences track** (Gene Code) lives under `hub.html` and the `lesson-*.html` chapters
 
 **Regenerate math/ELA unit HTML** (after editing `scripts/generate-realm-units.py`):
 
@@ -16,4 +16,5 @@ Static learning games (life science, math, ELA) and the Nexus meta-hub.
 python3 scripts/generate-realm-units.py
 ```
 
-**Deploy:** GitHub Actions publishes this repo to GitHub Pages on every push to `main` (see `.github/workflows/deploy-pages.yml`).
+**Repository:** [github.com/leighrobbins-hub/nexus-academy](https://github.com/leighrobbins-hub/nexus-academy)  
+**Deploy:** GitHub Actions publishes on every push to `main` (`.github/workflows/deploy-pages.yml`).

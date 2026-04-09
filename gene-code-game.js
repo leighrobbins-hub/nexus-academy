@@ -1,5 +1,5 @@
 /**
- * Gene Code Explorer — unified save, global XP, four lesson chapters.
+ * Nexus Academy — life sciences (Gene Code) — unified save, global XP, four lesson chapters.
  * Each lesson: 5 missions × 100 XP + 4 quiz questions × 25 XP = 600 XP/chapter → 2400 max.
  */
 (function (global) {
