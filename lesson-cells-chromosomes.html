@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 3 · Cells &amp; chromosomes — Gene Code Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050809;
+      --elev: #0c1012;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #5eead4;
+      --blue: #60a5fa;
+      --radius: 12px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --nav-h: 56px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding-top: var(--nav-h);
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 75% 45% at 70% -5%, rgba(96, 165, 250, 0.08), transparent),
+        radial-gradient(circle at 10% 70%, rgba(94, 234, 212, 0.04), transparent);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.55rem 1rem;
+      min-height: var(--nav-h);
+      background: rgba(5, 8, 9, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    }
+    .top-nav strong { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .top-nav a.home {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+    }
+    .top-nav a.home:hover { color: var(--accent); border-color: rgba(94,234,212,0.35); }
+    .top-nav span.title { font-size: 0.85rem; color: var(--muted); }
+    .wrap { width: min(48rem, calc(100% - 2rem)); margin: 0 auto; padding: 2.5rem 0 3rem; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; }
+    .hero-badge { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.75rem; }
+    h1 { font-size: clamp(1.85rem, 1.2rem + 2vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; margin: 0 0 1rem; line-height: 1.15; }
+    .lead { color: var(--muted); max-width: 44ch; margin: 0 0 2rem; font-size: 1.05rem; }
+    section { padding: 2.5rem 0; border-top: 1px solid rgba(255,255,255,0.06); scroll-margin-top: calc(var(--nav-h) + 8px); }
+    .kicker { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.35rem; }
+    h2 { font-size: clamp(1.35rem, 1rem + 1vw, 1.75rem); margin: 0 0 0.75rem; }
+    .intro { color: var(--muted); margin-bottom: 1.25rem; max-width: 52ch; }
+    .callout {
+      margin: 1rem 0;
+      padding: 1rem 1.2rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      border-left: 4px solid var(--blue);
+      background: rgba(96, 165, 250, 0.08);
+    }
+    .callout strong { color: var(--blue); }
+    .diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      background: var(--elev);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .nucleus {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px dashed rgba(96, 165, 250, 0.5);
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 0.5rem;
+    }
+    .chrom-pair { display: flex; gap: 0.35rem; align-items: flex-end; }
+    .chrom { width: 12px; height: 48px; border-radius: 6px; background: linear-gradient(180deg, #60a5fa, #3b82f6); }
+    .chrom.alt { background: linear-gradient(180deg, #94a3b8, #64748b); height: 44px; }
+    .arrow { font-size: 1.5rem; color: var(--accent); }
+    .flashcard { margin-bottom: 0.75rem; border-radius: var(--radius); background: var(--elev); border: 1px solid rgba(255,255,255,0.07); border-left: 4px solid var(--accent); overflow: hidden; }
+    .flashcard-q { padding: 0.85rem 1rem; margin: 0; font-weight: 600; cursor: pointer; user-select: none; }
+    .flashcard-q::after { content: " ▾"; opacity: 0.5; }
+    .flashcard.open .flashcard-q::after { content: " ▴"; }
+    .flashcard-a { max-height: 0; overflow: hidden; transition: max-height 0.45s var(--ease); }
+    .flashcard.open .flashcard-a { max-height: 200px; }
+    .flashcard-a-inner { padding: 0 1rem 1rem; color: var(--muted); font-size: 0.92rem; }
+    .quiz-box { background: var(--elev); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.35rem; margin-bottom: 1.25rem; }
+    .quiz-box p:first-child { margin-top: 0; font-weight: 600; }
+    .quiz-opts { display: grid; gap: 0.45rem; }
+    @media(min-width:500px){ .quiz-opts.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .quiz-opts button {
+      padding: 0.65rem 0.85rem; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
+      background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; text-align: left; cursor: pointer;
+    }
+    .quiz-opts button:disabled { opacity: 0.9; cursor: default; }
+    .quiz-opts button.ok { border-color: #4ade80; background: rgba(74,222,128,0.1); }
+    .quiz-opts button.bad { border-color: #fb7185; background: rgba(251,113,133,0.08); }
+    .explain { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s; }
+    .explain.open { max-height: 140px; opacity: 1; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body>
+  <nav class="top-nav" aria-label="Lesson navigation">
+    <strong>Gene Code</strong>
+    <a class="home" href="index.html">← All lessons</a>
+    <span class="title">Lesson 3 · Cells &amp; chromosomes</span>
+  </nav>
+
+  <div class="wrap">
+    <header class="reveal">
+      <p class="hero-badge">Middle school · Cell biology</p>
+      <h1>Where DNA lives — and how cells copy it</h1>
+      <p class="lead">Every cell in your body (almost) carries a full copy of your DNA. That DNA is packaged into <strong>chromosomes</strong> inside the <strong>nucleus</strong>. When cells divide, the chromosome story splits in two different ways—one for growth, one for making sperm and eggs.</p>
+    </header>
+
+    <section id="nucleus">
+      <p class="kicker reveal">Location</p>
+      <h2 class="reveal d1">Nucleus: the cell’s library</h2>
+      <p class="intro reveal d2">In eukaryotic cells (like yours), DNA is stored in the <strong>nucleus</strong>, surrounded by a membrane. The rest of the cell does the “work” — but the nucleus holds the master instructions.</p>
+      <div class="diagram reveal" aria-hidden="true">
+        <div class="nucleus">Nucleus<br/>DNA inside</div>
+        <span class="arrow">→</span>
+        <div style="font-size:0.85rem;color:var(--muted);max-width:12rem">Chromosomes = long DNA molecules + proteins, visible when a cell is about to divide.</div>
+      </div>
+    </section>
+
+    <section id="chromosomes">
+      <p class="kicker reveal">Packaging</p>
+      <h2 class="reveal d1">Chromosomes come in pairs</h2>
+      <p class="intro reveal d2">Humans have <strong>46 chromosomes</strong> in most body cells: <strong>23 pairs</strong>. One chromosome in each pair came from your mother; the other from your father. They carry matching kinds of genes—though the alleles may differ.</p>
+      <div class="callout reveal">The 23rd pair is special: <strong>sex chromosomes</strong> (typically XX or XY) help determine many sex-linked traits—not the only factor in identity, but important in genetics class.</div>
+      <div class="diagram reveal">
+        <div class="chrom-pair" title="Homologous pair (simplified)"><div class="chrom"></div><div class="chrom alt"></div></div>
+        <span style="color:var(--muted);font-size:0.85rem">Homologous pair — same genes, possibly different alleles.</span>
+      </div>
+    </section>
+
+    <section id="mitosis">
+      <p class="kicker reveal">Body cells</p>
+      <h2 class="reveal d1">Mitosis — copy for growth &amp; repair</h2>
+      <p class="intro reveal d2"><strong>Mitosis</strong> divides one cell into two <strong>genetically identical</strong> daughter cells (same chromosome number). It’s how you grow, heal a cut, or replace skin. Before mitosis, DNA replicates so each chromosome has two sister chromatids—then they split apart.</p>
+    </section>
+
+    <section id="meiosis">
+      <p class="kicker reveal">Sex cells</p>
+      <h2 class="reveal d1">Meiosis — half the DNA for sperm &amp; eggs</h2>
+      <p class="intro reveal d2"><strong>Meiosis</strong> makes <strong>gametes</strong> (sperm or egg) with only <strong>23 chromosomes</strong>—half of a normal body cell. When sperm and egg fuse at fertilization, you’re back to 46—one complete genome for the new organism.</p>
+      <div class="callout reveal">Without meiosis halving the number, each generation would double chromosomes forever. Meiosis also <strong>shuffles alleles</strong> (crossing over and random assortment), which helps explain variation in siblings.</div>
+    </section>
+
+    <section id="flash">
+      <p class="kicker reveal">Review</p>
+      <h2 class="reveal d1">Flashcards</h2>
+      <div class="flashcard reveal"><p class="flashcard-q" tabindex="0" role="button">What is a chromosome?</p><div class="flashcard-a"><div class="flashcard-a-inner">A <strong>package</strong> of DNA + proteins that carries many genes—visible under a microscope when the cell divides.</div></div></div>
+      <div class="flashcard reveal d1"><p class="flashcard-q" tabindex="0" role="button">Mitosis vs meiosis in one sentence?</p><div class="flashcard-a"><div class="flashcard-a-inner"><strong>Mitosis:</strong> two identical body cells. <strong>Meiosis:</strong> four genetically different gametes with half the chromosomes.</div></div></div>
+      <div class="flashcard reveal d2"><p class="flashcard-q" tabindex="0" role="button">Why do egg and sperm have half the chromosomes?</p><div class="flashcard-a"><div class="flashcard-a-inner">So when they combine, the zygote gets a <strong>full</strong> set—one copy from each parent.</div></div></div>
+    </section>
+
+    <section id="quiz">
+      <p class="kicker reveal">Check yourself</p>
+      <h2 class="reveal d1">Quick quiz</h2>
+      <div class="quiz-box reveal" data-ok="1" id="q1">
+        <p>1. In typical human body cells, chromosomes usually come in…</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Single files (no pairs)</button>
+          <button type="button" data-i="1">Pairs (homologous pairs)</button>
+          <button type="button" data-i="2">Groups of ten</button>
+          <button type="button" data-i="3">Only in the mitochondria</button>
+        </div>
+        <div class="explain"><p>23 pairs — 46 total in diploid body cells.</p></div>
+      </div>
+      <div class="quiz-box reveal d1" data-ok="0" id="q2">
+        <p>2. Which process makes genetically identical body cells for growth?</p>
+        <div class="quiz-opts">
+          <button type="button" data-i="0">Mitosis</button>
+          <button type="button" data-i="1">Meiosis</button>
+          <button type="button" data-i="2">Photosynthesis</button>
+          <button type="button" data-i="3">Fermentation</button>
+        </div>
+        <div class="explain"><p>Mitosis produces two nuclei/cells with the same chromosome set as the parent (after replication).</p></div>
+      </div>
+      <div class="quiz-box reveal d2" data-ok="2" id="q3">
+        <p>3. Human gametes (sperm or egg) typically have how many chromosomes?</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">46</button>
+          <button type="button" data-i="1">92</button>
+          <button type="button" data-i="2">23</button>
+          <button type="button" data-i="3">12</button>
+        </div>
+        <div class="explain"><p>Haploid number <strong>n = 23</strong>; fertilization restores 2n = 46.</p></div>
+      </div>
+      <div class="quiz-box reveal" data-ok="3" id="q4">
+        <p>4. Most of your DNA is stored in the…</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Ribosome</button>
+          <button type="button" data-i="1">Cell membrane only</button>
+          <button type="button" data-i="2">Golgi apparatus</button>
+          <button type="button" data-i="3">Nucleus</button>
+        </div>
+        <div class="explain"><p>Nuclear DNA (plus a small amount of mitochondrial DNA).</p></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Gene Code Explorer · Lesson 3 · Cells, chromosomes &amp; division</footer>
+
+  <script>
+    (function () {
+      document.querySelectorAll(".reveal").forEach(function (el) {
+        if (!("IntersectionObserver" in window)) { el.classList.add("in-view"); return; }
+        var o = new IntersectionObserver(function (ents) {
+          ents.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in-view"); o.unobserve(e.target); } });
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+        o.observe(el);
+      });
+      document.querySelectorAll(".flashcard-q").forEach(function (q) {
+        q.addEventListener("click", function () { q.closest(".flashcard").classList.toggle("open"); });
+        q.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); q.click(); }
+        });
+      });
+      document.querySelectorAll(".quiz-box").forEach(function (box) {
+        var ok = parseInt(box.getAttribute("data-ok"), 10);
+        var expl = box.querySelector(".explain");
+        box.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            if (box.getAttribute("data-answered")) return;
+            box.setAttribute("data-answered", "1");
+            var i = parseInt(btn.getAttribute("data-i"), 10);
+            box.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+            if (i === ok) btn.classList.add("ok"); else {
+              btn.classList.add("bad");
+              box.querySelector('button[data-i="' + ok + '"]').classList.add("ok");
+            }
+            if (expl) expl.classList.add("open");
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

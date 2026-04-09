@@ -1,13 +1,26 @@
-# GeneCode-Explorer
+# Gene Code Explorer
 
-Interactive middle-school lesson: DNA structure, bases, pairing, codons, proteins — flashcards, 3D helix, missions, and quiz. Open **`index.html`** in a browser (or use a local server so the 3D viewer can load scripts).
+Middle-school genetics lessons as standalone HTML: **hub** at the site root, four topic tracks, dark theme (DM Sans).
+
+| Page | Topic |
+|------|--------|
+| [index.html](index.html) | **Hub** — pick a lesson |
+| [lesson-dna-encoding.html](lesson-dna-encoding.html) | DNA structure, bases, codons, proteins, flashcards, 3D, missions, quiz |
+| [lesson-heredity.html](lesson-heredity.html) | Heredity, alleles, dominant/recessive, Punnett squares |
+| [lesson-cells-chromosomes.html](lesson-cells-chromosomes.html) | Nucleus, chromosomes, mitosis vs meiosis |
+| [lesson-evolution-variation.html](lesson-evolution-variation.html) | Variation, natural selection, adaptation |
+| [dna-genetics-lesson.html](dna-genetics-lesson.html) | Same content as Lesson 1 (alternate filename) |
 
 ## Live site (GitHub Pages)
 
-1. **Repo → Settings → Pages**
-2. **Build and deployment** → **Source**: **GitHub Actions** (not “Deploy from branch”).
-3. Push to `main` runs [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml). When the workflow finishes, the site is at:
-
 **https://leighrobbins-hub.github.io/GeneCode-Explorer/**
 
-If you see 404, wait a minute after the first successful run, or confirm Pages source is **GitHub Actions**.
+After pushing to `main`, the **Deploy to GitHub Actions** workflow publishes the site. Lesson 1’s 3D view may need a normal `https://` origin (not `file://`).
+
+## Local preview
+
+```bash
+npx serve
+```
+
+Then open the URL shown (e.g. http://localhost:3000).

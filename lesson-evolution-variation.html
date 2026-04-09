@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 4 · Evolution &amp; variation — Gene Code Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050809;
+      --elev: #0c1012;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #5eead4;
+      --amber: #fbbf24;
+      --green: #4ade80;
+      --radius: 12px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --nav-h: 56px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding-top: var(--nav-h);
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 65% 50% at 30% -15%, rgba(251, 191, 36, 0.07), transparent),
+        radial-gradient(circle at 90% 60%, rgba(74, 222, 128, 0.05), transparent);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.55rem 1rem;
+      min-height: var(--nav-h);
+      background: rgba(5, 8, 9, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+    }
+    .top-nav strong { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .top-nav a.home {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+    }
+    .top-nav a.home:hover { color: var(--accent); border-color: rgba(94,234,212,0.35); }
+    .top-nav span.title { font-size: 0.85rem; color: var(--muted); }
+    .wrap { width: min(48rem, calc(100% - 2rem)); margin: 0 auto; padding: 2.5rem 0 3rem; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; }
+    .hero-badge { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.75rem; }
+    h1 { font-size: clamp(1.85rem, 1.2rem + 2vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; margin: 0 0 1rem; line-height: 1.15; }
+    .lead { color: var(--muted); max-width: 44ch; margin: 0 0 2rem; font-size: 1.05rem; }
+    section { padding: 2.5rem 0; border-top: 1px solid rgba(255,255,255,0.06); scroll-margin-top: calc(var(--nav-h) + 8px); }
+    .kicker { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.35rem; }
+    h2 { font-size: clamp(1.35rem, 1rem + 1vw, 1.75rem); margin: 0 0 0.75rem; }
+    .intro { color: var(--muted); margin-bottom: 1.25rem; max-width: 52ch; }
+    .callout {
+      margin: 1rem 0;
+      padding: 1rem 1.2rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      border-left: 4px solid var(--green);
+      background: rgba(74, 222, 128, 0.07);
+    }
+    .callout strong { color: var(--green); }
+    .pop-grid {
+      display: grid;
+      gap: 0.65rem;
+      margin: 1rem 0;
+    }
+    @media (min-width: 520px) {
+      .pop-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .pop-card {
+      padding: 0.85rem;
+      border-radius: 10px;
+      background: var(--elev);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.85rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .pop-card b { display: block; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .flashcard { margin-bottom: 0.75rem; border-radius: var(--radius); background: var(--elev); border: 1px solid rgba(255,255,255,0.07); border-left: 4px solid var(--amber); overflow: hidden; }
+    .flashcard-q { padding: 0.85rem 1rem; margin: 0; font-weight: 600; cursor: pointer; user-select: none; }
+    .flashcard-q::after { content: " ▾"; opacity: 0.5; }
+    .flashcard.open .flashcard-q::after { content: " ▴"; }
+    .flashcard-a { max-height: 0; overflow: hidden; transition: max-height 0.45s var(--ease); }
+    .flashcard.open .flashcard-a { max-height: 220px; }
+    .flashcard-a-inner { padding: 0 1rem 1rem; color: var(--muted); font-size: 0.92rem; }
+    .quiz-box { background: var(--elev); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.35rem; margin-bottom: 1.25rem; }
+    .quiz-box p:first-child { margin-top: 0; font-weight: 600; }
+    .quiz-opts { display: grid; gap: 0.45rem; }
+    @media(min-width:500px){ .quiz-opts.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .quiz-opts button {
+      padding: 0.65rem 0.85rem; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
+      background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; text-align: left; cursor: pointer;
+    }
+    .quiz-opts button:disabled { opacity: 0.9; cursor: default; }
+    .quiz-opts button.ok { border-color: #4ade80; background: rgba(74,222,128,0.1); }
+    .quiz-opts button.bad { border-color: #fb7185; background: rgba(251,113,133,0.08); }
+    .explain { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s; }
+    .explain.open { max-height: 160px; opacity: 1; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body>
+  <nav class="top-nav" aria-label="Lesson navigation">
+    <strong>Gene Code</strong>
+    <a class="home" href="index.html">← All lessons</a>
+    <span class="title">Lesson 4 · Evolution</span>
+  </nav>
+
+  <div class="wrap">
+    <header class="reveal">
+      <p class="hero-badge">Middle school · Evolution</p>
+      <h1>Same DNA alphabet, amazing variety of life</h1>
+      <p class="lead"><strong>Evolution</strong> is change in inherited traits in populations over generations. <strong>Genetic variation</strong>—differences in DNA between individuals—gives natural selection something to work with. No variation, no adaptation story.</p>
+    </header>
+
+    <section id="variation">
+      <p class="kicker reveal">Raw material</p>
+      <h2 class="reveal d1">Variation in populations</h2>
+      <p class="intro reveal d2">Members of the same species are alike enough to interbreed, but they’re not genetically identical (except clones or identical twins). <strong>Mutation</strong>, <strong>recombination</strong>, and <strong>random mating</strong> all introduce and shuffle differences.</p>
+      <div class="pop-grid reveal" aria-hidden="true">
+        <div class="pop-card"><b>Mutation</b>Random DNA changes</div>
+        <div class="pop-card"><b>Gene flow</b>Alleles move between groups</div>
+        <div class="pop-card"><b>Sexual repro</b>New allele combos</div>
+      </div>
+    </section>
+
+    <section id="selection">
+      <p class="kicker reveal">Mechanism</p>
+      <h2 class="reveal d1">Natural selection</h2>
+      <p class="intro reveal d2">In a given environment, some traits help individuals survive and reproduce more often. Those traits become <strong>more common</strong> over time—not because organisms “try” to evolve, but because helpful alleles get passed down more frequently.</p>
+      <div class="callout reveal">Classic example: darker moths in sooty industrial areas—camouflage changed survival odds. The environment <strong>selects</strong> phenotypes; DNA variation provides options.</div>
+    </section>
+
+    <section id="adaptation">
+      <p class="kicker reveal">Outcome</p>
+      <h2 class="reveal d1">Adaptation</h2>
+      <p class="intro reveal d2">An <strong>adaptation</strong> is a trait that helps an organism survive and reproduce in its environment—often shaped by selection over many generations. What’s “adaptive” depends on place and time: the same allele might help or hurt if the climate shifts.</p>
+    </section>
+
+    <section id="speciation">
+      <p class="kicker reveal">Big picture</p>
+      <h2 class="reveal d1">From differences to new species</h2>
+      <p class="intro reveal d2">When populations are separated or preferences change, they can accumulate so many genetic differences that they no longer interbreed freely—<strong>speciation</strong>. The tree of life reflects billions of years of this process, all using the same A–T–G–C chemistry.</p>
+    </section>
+
+    <section id="flash">
+      <p class="kicker reveal">Review</p>
+      <h2 class="reveal d1">Flashcards</h2>
+      <div class="flashcard reveal"><p class="flashcard-q" tabindex="0" role="button">What is natural selection?</p><div class="flashcard-a"><div class="flashcard-a-inner">A process where <strong>environmental differences</strong> change which traits reproduce more often in a population over time.</div></div></div>
+      <div class="flashcard reveal d1"><p class="flashcard-q" tabindex="0" role="button">Does evolution “want” a species to get smarter?</p><div class="flashcard-a"><div class="flashcard-a-inner">No goals—just <strong>differential survival and reproduction</strong> of existing variation.</div></div></div>
+      <div class="flashcard reveal d2"><p class="flashcard-q" tabindex="0" role="button">Why is genetic variation important?</p><div class="flashcard-a"><div class="flashcard-a-inner">Without differences, <strong>no</strong> allele frequencies can change in response to selection.</div></div></div>
+    </section>
+
+    <section id="quiz">
+      <p class="kicker reveal">Check yourself</p>
+      <h2 class="reveal d1">Quick quiz</h2>
+      <div class="quiz-box reveal" data-ok="2" id="q1">
+        <p>1. Natural selection acts on…</p>
+        <div class="quiz-opts">
+          <button type="button" data-i="0">Individual cells only</button>
+          <button type="button" data-i="1">Ancient fossils directly</button>
+          <button type="button" data-i="2">Heritable variation in populations</button>
+          <button type="button" data-i="3">The weather only</button>
+        </div>
+        <div class="explain"><p>Selection changes allele frequencies across generations—population-level process.</p></div>
+      </div>
+      <div class="quiz-box reveal d1" data-ok="1" id="q2">
+        <p>2. A helpful trait spreads in a population mainly because…</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Organisms choose to evolve</button>
+          <button type="button" data-i="1">Carriers tend to survive/reproduce more</button>
+          <button type="button" data-i="2">DNA always mutates toward “better”</button>
+          <button type="button" data-i="3">The sun heats DNA</button>
+        </div>
+        <div class="explain"><p>Heritable traits linked to more offspring become more common.</p></div>
+      </div>
+      <div class="quiz-box reveal d2" data-ok="0" id="q3">
+        <p>3. Which is a source of new genetic variation?</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Mutation</button>
+          <button type="button" data-i="1">Drinking water</button>
+          <button type="button" data-i="2">Wearing glasses</button>
+          <button type="button" data-i="3">Homework</button>
+        </div>
+        <div class="explain"><p>Mutation creates new alleles; other processes reshuffle existing variation.</p></div>
+      </div>
+      <div class="quiz-box reveal" data-ok="3" id="q4">
+        <p>4. Two populations no longer interbreed—what might have happened?</p>
+        <div class="quiz-opts">
+          <button type="button" data-i="0">They forgot each other’s names</button>
+          <button type="button" data-i="1">They ran out of DNA</button>
+          <button type="button" data-i="2">Photosynthesis stopped</button>
+          <button type="button" data-i="3">Reproductive isolation / divergence (speciation over time)</button>
+        </div>
+        <div class="explain"><p>Many mechanisms—geographic barriers, behavior, timing—can split gene pools.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Gene Code Explorer · Lesson 4 · Evolution &amp; genetic variation</footer>
+
+  <script>
+    (function () {
+      document.querySelectorAll(".reveal").forEach(function (el) {
+        if (!("IntersectionObserver" in window)) { el.classList.add("in-view"); return; }
+        var o = new IntersectionObserver(function (ents) {
+          ents.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in-view"); o.unobserve(e.target); } });
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+        o.observe(el);
+      });
+      document.querySelectorAll(".flashcard-q").forEach(function (q) {
+        q.addEventListener("click", function () { q.closest(".flashcard").classList.toggle("open"); });
+        q.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); q.click(); }
+        });
+      });
+      document.querySelectorAll(".quiz-box").forEach(function (box) {
+        var ok = parseInt(box.getAttribute("data-ok"), 10);
+        var expl = box.querySelector(".explain");
+        box.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            if (box.getAttribute("data-answered")) return;
+            box.setAttribute("data-answered", "1");
+            var i = parseInt(btn.getAttribute("data-i"), 10);
+            box.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+            if (i === ok) btn.classList.add("ok"); else {
+              btn.classList.add("bad");
+              box.querySelector('button[data-i="' + ok + '"]').classList.add("ok");
+            }
+            if (expl) expl.classList.add("open");
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

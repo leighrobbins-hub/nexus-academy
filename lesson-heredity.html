@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 2 · Heredity &amp; traits — Gene Code Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050809;
+      --elev: #0c1012;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #5eead4;
+      --teal: #4de8c2;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --nav-h: 56px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding-top: var(--nav-h);
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(167, 139, 250, 0.07), transparent),
+        radial-gradient(circle at 15% 80%, rgba(77, 232, 194, 0.04), transparent);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.55rem 1rem;
+      min-height: var(--nav-h);
+      background: rgba(5, 8, 9, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+    }
+    .top-nav strong { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .top-nav a.home {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+    }
+    .top-nav a.home:hover { color: var(--accent); border-color: rgba(94,234,212,0.35); }
+    .top-nav span.title { font-size: 0.85rem; color: var(--muted); }
+    .wrap { width: min(48rem, calc(100% - 2rem)); margin: 0 auto; padding: 2.5rem 0 3rem; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; }
+    .hero-badge { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--purple); margin-bottom: 0.75rem; }
+    h1 { font-size: clamp(1.85rem, 1.2rem + 2vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; margin: 0 0 1rem; line-height: 1.15; }
+    .lead { color: var(--muted); max-width: 44ch; margin: 0 0 2rem; font-size: 1.05rem; }
+    section { padding: 2.5rem 0; border-top: 1px solid rgba(255,255,255,0.06); scroll-margin-top: calc(var(--nav-h) + 8px); }
+    .kicker { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.35rem; }
+    h2 { font-size: clamp(1.35rem, 1rem + 1vw, 1.75rem); margin: 0 0 0.75rem; }
+    .intro { color: var(--muted); margin-bottom: 1.25rem; max-width: 52ch; }
+    .callout {
+      margin: 1rem 0;
+      padding: 1rem 1.2rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      border-left: 4px solid var(--teal);
+      background: rgba(77, 232, 194, 0.07);
+    }
+    .callout strong { color: var(--teal); }
+    .punnett {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      gap: 0.35rem 0.5rem;
+      max-width: 14rem;
+      margin: 1rem 0;
+      font-family: ui-monospace, monospace;
+      font-size: 0.95rem;
+    }
+    .punnett b { color: var(--accent); }
+    .card {
+      background: var(--elev);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      margin: 1rem 0;
+    }
+    .flashcard { margin-bottom: 0.75rem; border-radius: var(--radius); background: var(--elev); border: 1px solid rgba(255,255,255,0.07); border-left: 4px solid var(--purple); overflow: hidden; }
+    .flashcard-q { padding: 0.85rem 1rem; margin: 0; font-weight: 600; cursor: pointer; user-select: none; }
+    .flashcard-q::after { content: " ▾"; opacity: 0.5; }
+    .flashcard.open .flashcard-q::after { content: " ▴"; }
+    .flashcard-a { max-height: 0; overflow: hidden; transition: max-height 0.45s var(--ease); }
+    .flashcard.open .flashcard-a { max-height: 200px; }
+    .flashcard-a-inner { padding: 0 1rem 1rem; color: var(--muted); font-size: 0.92rem; }
+    .quiz-box { background: var(--elev); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.35rem; margin-bottom: 1.25rem; }
+    .quiz-box p:first-child { margin-top: 0; font-weight: 600; }
+    .quiz-opts { display: grid; gap: 0.45rem; }
+    @media(min-width:500px){ .quiz-opts.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .quiz-opts button {
+      padding: 0.65rem 0.85rem; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
+      background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; text-align: left; cursor: pointer;
+    }
+    .quiz-opts button:disabled { opacity: 0.9; cursor: default; }
+    .quiz-opts button.ok { border-color: #4ade80; background: rgba(74,222,128,0.1); }
+    .quiz-opts button.bad { border-color: #fb7185; background: rgba(251,113,133,0.08); }
+    .explain { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s; }
+    .explain.open { max-height: 120px; opacity: 1; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body>
+  <nav class="top-nav" aria-label="Lesson navigation">
+    <strong>Gene Code</strong>
+    <a class="home" href="index.html">← All lessons</a>
+    <span class="title">Lesson 2 · Heredity</span>
+  </nav>
+
+  <div class="wrap">
+    <header class="reveal">
+      <p class="hero-badge">Middle school · Heredity</p>
+      <h1>Why do traits run in families?</h1>
+      <p class="lead">You might share your grandmother’s smile or your parent’s hair texture. Heredity is how <strong>genetic information</strong> passes from parents to offspring—without copying the whole story cell-by-cell in words, DNA does it with genes and rules we can model.</p>
+    </header>
+
+    <section id="genes">
+      <p class="kicker reveal">Building blocks</p>
+      <h2 class="reveal d1">Genes, alleles, and chromosomes</h2>
+      <p class="intro reveal d2">A <strong>gene</strong> is a stretch of DNA that often codes for a protein or trait. You inherit two copies of most genes—one from each parent. Each version is an <strong>allele</strong> (like different “spellings”).</p>
+      <div class="callout reveal">Together, your alleles across all your genes make up your <strong>genotype</strong>. The traits you actually show (when they can be seen) are part of your <strong>phenotype</strong>—influenced by genes and also by environment.</div>
+    </section>
+
+    <section id="dominant">
+      <p class="kicker reveal">Patterns</p>
+      <h2 class="reveal d1">Dominant and recessive</h2>
+      <p class="intro reveal d2">For many simple traits, one allele can “hide” another. A <strong>dominant</strong> allele shows its effect if you have one or two copies. A <strong>recessive</strong> allele only shows if you have two copies—because there’s no dominant version to mask it.</p>
+      <div class="card reveal">
+        <p style="margin:0 0 0.5rem"><strong>Example:</strong> In pea plants, tall (T) is dominant over short (t). A plant with <code>TT</code> or <code>Tt</code> is tall; only <code>tt</code> is short.</p>
+        <p style="margin:0;color:var(--muted);font-size:0.92rem;">Real human traits are usually more complex—many genes and the environment matter—but the idea of dominant/recessive is a useful starting model.</p>
+      </div>
+    </section>
+
+    <section id="punnett">
+      <p class="kicker reveal">Prediction</p>
+      <h2 class="reveal d1">Punnett squares — chance in a grid</h2>
+      <p class="intro reveal d2">A <strong>Punnett square</strong> predicts offspring genotypes when you know parents’ alleles. Each parent passes <strong>one</strong> allele at random for that gene (for simple models).</p>
+      <p class="reveal">If both parents are <strong>Tt</strong> (heterozygous tall), the square shows 25% <code>TT</code>, 50% <code>Tt</code>, 25% <code>tt</code>—so 75% tall phenotype, 25% short.</p>
+      <div class="punnett reveal" aria-hidden="true">
+        <span></span><span><b>T</b></span><span><b>t</b></span>
+        <span><b>T</b></span><span>TT</span><span>Tt</span>
+        <span><b>t</b></span><span>Tt</span><span>tt</span>
+      </div>
+    </section>
+
+    <section id="environment">
+      <p class="kicker reveal">Beyond DNA</p>
+      <h2 class="reveal d1">Genes aren’t the whole story</h2>
+      <p class="intro reveal d2">Nutrition, sunlight, practice, and health all shape how traits appear. Height has a genetic component but also depends on diet and care. <strong>DNA sets possibilities; life experiences help decide how they play out.</strong></p>
+    </section>
+
+    <section id="flash">
+      <p class="kicker reveal">Review</p>
+      <h2 class="reveal d1">Flashcards</h2>
+      <p class="intro reveal d2">Tap a question to reveal a short answer.</p>
+      <div class="flashcard reveal"><p class="flashcard-q" tabindex="0" role="button">What is an allele?</p><div class="flashcard-a"><div class="flashcard-a-inner">A <strong>version</strong> of a gene—like different spellings of the same instruction.</div></div></div>
+      <div class="flashcard reveal d1"><p class="flashcard-q" tabindex="0" role="button">What is a genotype?</p><div class="flashcard-a"><div class="flashcard-a-inner">The combination of <strong>alleles</strong> you carry for a gene (e.g. Tt).</div></div></div>
+      <div class="flashcard reveal d2"><p class="flashcard-q" tabindex="0" role="button">What is a phenotype?</p><div class="flashcard-a"><div class="flashcard-a-inner">The <strong>observable trait</strong>—what we can measure or see, shaped by genes and environment.</div></div></div>
+      <div class="flashcard reveal"><p class="flashcard-q" tabindex="0" role="button">Why can two tall pea plants still have a short child?</p><div class="flashcard-a"><div class="flashcard-a-inner">If both are <strong>Tt</strong>, there’s a 25% chance each offspring is <strong>tt</strong> (short).</div></div></div>
+    </section>
+
+    <section id="quiz">
+      <p class="kicker reveal">Check yourself</p>
+      <h2 class="reveal d1">Quick quiz</h2>
+      <div class="quiz-box reveal" data-ok="1" id="q1">
+        <p>1. You inherit one allele for a gene from each…</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Friend</button>
+          <button type="button" data-i="1">Parent</button>
+          <button type="button" data-i="2">Teacher</button>
+          <button type="button" data-i="3">Ribosome</button>
+        </div>
+        <div class="explain"><p>You get one copy from your biological mother and one from your biological father (for autosomal genes).</p></div>
+      </div>
+      <div class="quiz-box reveal d1" data-ok="2" id="q2">
+        <p>2. In simple models, a recessive trait shows when an organism is…</p>
+        <div class="quiz-opts">
+          <button type="button" data-i="0">Heterozygous only</button>
+          <button type="button" data-i="1">Always hybrid</button>
+          <button type="button" data-i="2">Homozygous recessive (two recessive alleles)</button>
+          <button type="button" data-i="3">Dominant for that gene</button>
+        </div>
+        <div class="explain"><p>Two recessive alleles (e.g. <code>aa</code>)—no dominant allele to mask them.</p></div>
+      </div>
+      <div class="quiz-box reveal d2" data-ok="0" id="q3">
+        <p>3. A Punnett square helps you predict…</p>
+        <div class="quiz-opts cols-2">
+          <button type="button" data-i="0">Offspring genotype probabilities (simple models)</button>
+          <button type="button" data-i="1">Tomorrow’s weather</button>
+          <button type="button" data-i="2">The price of gas</button>
+          <button type="button" data-i="3">How many bones you have</button>
+        </div>
+        <div class="explain"><p>It organizes how parental alleles can combine—under simple inheritance assumptions.</p></div>
+      </div>
+      <div class="quiz-box reveal" data-ok="3" id="q4">
+        <p>4. Phenotype depends on…</p>
+        <div class="quiz-opts">
+          <button type="button" data-i="0">Genes only—environment never matters</button>
+          <button type="button" data-i="1">Only what you eat for breakfast</button>
+          <button type="button" data-i="2">Random chance only</button>
+          <button type="button" data-i="3">Genes <em>and</em> environment (and more)</button>
+        </div>
+        <div class="explain"><p>Many traits are multifactorial: DNA + life experience + sometimes luck.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Gene Code Explorer · Lesson 2 · Heredity &amp; traits</footer>
+
+  <script>
+    (function () {
+      document.querySelectorAll(".reveal").forEach(function (el) {
+        if (!("IntersectionObserver" in window)) { el.classList.add("in-view"); return; }
+        var o = new IntersectionObserver(function (ents) {
+          ents.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in-view"); o.unobserve(e.target); } });
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+        o.observe(el);
+      });
+      document.querySelectorAll(".flashcard-q").forEach(function (q) {
+        q.addEventListener("click", function () {
+          var c = q.closest(".flashcard");
+          c.classList.toggle("open");
+        });
+        q.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); q.click(); }
+        });
+      });
+      document.querySelectorAll(".quiz-box").forEach(function (box) {
+        var ok = parseInt(box.getAttribute("data-ok"), 10);
+        var expl = box.querySelector(".explain");
+        box.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            if (box.getAttribute("data-answered")) return;
+            box.setAttribute("data-answered", "1");
+            var i = parseInt(btn.getAttribute("data-i"), 10);
+            box.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+            if (i === ok) btn.classList.add("ok"); else {
+              btn.classList.add("bad");
+              box.querySelector('button[data-i="' + ok + '"]').classList.add("ok");
+            }
+            if (expl) expl.classList.add("open");
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
