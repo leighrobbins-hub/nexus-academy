@@ -27,6 +27,9 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v4
+        with:
+          # Creates the GitHub Pages site on first run (otherwise configure step 404s)
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
